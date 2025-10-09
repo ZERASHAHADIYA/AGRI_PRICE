@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agri Price Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #2c6e49; }
+        form { margin-bottom: 20px; }
+        label { margin-right: 10px; }
+        select, button { padding: 8px; margin: 5px; }
+        .result { margin-top: 20px; padding: 15px; background: #f4f4f9; border-radius: 8px; }
+        .stats { margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; }
+        img { margin-top: 15px; border: 1px solid #ccc; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🌾 Agri Price Prediction</h1>
+    <form method="POST">
+        <label for="crop">Select Crop:</label>
+        <select name="crop" id="crop">
+            {% for c in crops %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="market">Select Market:</label>
+        <select name="market" id="market">
+            {% for m in markets %}
+            <option value="{{ m }}">{{ m }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Predict Price</button>
+    </form>
+
+    {% if prediction %}
+    <div class="result">
+        <h3>Predicted Price: {{ prediction }}</h3>
+    </div>
+    {% endif %}
+
+    {% if stats %}
+    <div class="stats">
+        <h3>📊 Market Analytics</h3>
+        <ul>
+            {% for k, v in stats.items() %}
+            <li><strong>{{ k }}:</strong> {{ v }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if chart %}
+    <div>
+        <h3>📈 Price Trend</h3>
+        <img src="{{ chart }}" alt="Trend Chart" width="600">
+    </div>
+    {% endif %}
+</body>
+</html>

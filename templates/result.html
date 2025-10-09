@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+</head>
+<body>
+    <h2>Predicted Price</h2>
+    <p>Crop: {{ crop }}</p>
+    <p>Market: {{ market }}</p>
+    <p>Date: {{ date }}</p>
+    <p>Predicted Price: ₹{{ prediction }}</p>
+
+    <h3>Price Trend</h3>
+    <img src="data:image/png;base64,{{ plot_url }}">
+
+    <br><a href="/">Go Back</a>
+</body>
+</html>
