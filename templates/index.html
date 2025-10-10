@@ -1,60 +1,305 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Agri Price Prediction</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { color: #2c6e49; }
-        form { margin-bottom: 20px; }
-        label { margin-right: 10px; }
-        select, button { padding: 8px; margin: 5px; }
-        .result { margin-top: 20px; padding: 15px; background: #f4f4f9; border-radius: 8px; }
-        .stats { margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; }
-        img { margin-top: 15px; border: 1px solid #ccc; border-radius: 8px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agri Price Prediction - Interactive</title>
+<style>
+  body {
+    background-image: url("{{ url_for('static', filename='images/images.jpeg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    position: relative;
+    font-family: 'Inter', Arial, sans-serif;
+    color: #1d3b28;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .container {
+    background: rgba(255,255,255,0.85);
+    border-radius: 14px;
+    padding: 30px 40px;
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  h2 {
+    color: #2c6e49;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  select, button {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 24px;
+    border-radius: 10px;
+    border: 1.8px solid #a3cc9c;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  select:focus, button:focus {
+    outline: none;
+    border-color: #4fa76d;
+    box-shadow: 0 0 8px #9cdbb1;
+  }
+  button {
+    color: white;
+    background: #2c6e49;
+    border: none;
+    font-weight: 700;
+  }
+  button:hover:enabled {
+    background: #3ba463;
+  }
+  button:disabled {
+    background: #a3cc9c;
+    cursor: not-allowed;
+  }
+  .step {
+    display: none;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .step.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(30px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+  .result-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2a5934;
+  }
+  ul.stats {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+  }
+  ul.stats li {
+    background: #d6ecd1;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: #276631;
+    box-shadow: inset 0 0 4px #b9d9a6;
+  }
+  img.chart {
+    width: 100%;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(44,110,73,0.15);
+    margin-bottom: 24px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-row button {
+    flex: 1 1 140px;
+  }
+  .message {
+    text-align:center;
+    font-weight:600;
+    color: #a03a2d;
+    margin-bottom: 24px;
+  }
+</style>
 </head>
 <body>
-    <h1>🌾 Agri Price Prediction</h1>
-    <form method="POST">
-        <label for="crop">Select Crop:</label>
-        <select name="crop" id="crop">
-            {% for c in crops %}
-            <option value="{{ c }}">{{ c }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="market">Select Market:</label>
-        <select name="market" id="market">
-            {% for m in markets %}
-            <option value="{{ m }}">{{ m }}</option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Predict Price</button>
-    </form>
-
-    {% if prediction %}
-    <div class="result">
-        <h3>Predicted Price: {{ prediction }}</h3>
+  <div class="container">
+    <!-- Step 1: Selection -->
+    <div id="step1" class="step active">
+      <h2>Select Crop & Market</h2>
+      <select id="cropSelect" required>
+        <option value="" disabled selected>Select Crop</option>
+        {% for c in crops %}
+        <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+      <select id="marketSelect" required>
+        <option value="" disabled selected>Select Market</option>
+        {% for m in markets %}
+        <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+      <button id="predictBtn" disabled>Predict Price</button>
+      <p class="message" id="message1"></p>
     </div>
-    {% endif %}
 
-    {% if stats %}
-    <div class="stats">
-        <h3>📊 Market Analytics</h3>
-        <ul>
-            {% for k, v in stats.items() %}
-            <li><strong>{{ k }}:</strong> {{ v }}</li>
-            {% endfor %}
-        </ul>
+    <!-- Step 2: Prediction Result -->
+    <div id="step2" class="step">
+      <h2>Prediction Result</h2>
+      <p class="result-text" id="predictionText"></p>
+      <div class="btn-row">
+        <button id="showAnalyticsBtn">Show Analytics</button>
+        <button id="downloadBtn">Download Result</button>
+        <button id="shareBtn">Share</button>
+      </div>
+      <button id="backToStep1Btn" style="margin-top:20px;">Start Over</button>
+      <p class="message" id="message2"></p>
     </div>
-    {% endif %}
 
-    {% if chart %}
-    <div>
-        <h3>📈 Price Trend</h3>
-        <img src="{{ chart }}" alt="Trend Chart" width="600">
+    <!-- Step 3: Analytics -->
+    <div id="step3" class="step">
+      <h2>Market Analytics & Price Trend</h2>
+      <ul class="stats" id="analyticsList"></ul>
+      <img class="chart" id="chartImg" alt="Price Trend Chart" />
+      <button id="backToStep1Btn2">Start Over</button>
+      <p class="message" id="message3"></p>
     </div>
-    {% endif %}
+  </div>
+
+<script>
+  const cropSelect = document.getElementById("cropSelect");
+  const marketSelect = document.getElementById("marketSelect");
+  const predictBtn = document.getElementById("predictBtn");
+  const showAnalyticsBtn = document.getElementById("showAnalyticsBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const shareBtn = document.getElementById("shareBtn");
+  const backToStep1Btn = document.getElementById("backToStep1Btn");
+  const backToStep1Btn2 = document.getElementById("backToStep1Btn2");
+
+  const step1 = document.getElementById("step1");
+  const step2 = document.getElementById("step2");
+  const step3 = document.getElementById("step3");
+
+  const predictionText = document.getElementById("predictionText");
+  const analyticsList = document.getElementById("analyticsList");
+  const chartImg = document.getElementById("chartImg");
+
+  const message1 = document.getElementById("message1");
+  const message2 = document.getElementById("message2");
+  const message3 = document.getElementById("message3");
+
+  let currentPrediction = null;
+  let currentCrop = '';
+  let currentMarket = '';
+
+  // Enable predict button only if both selected
+  function togglePredictButton() {
+    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
+  }
+  cropSelect.addEventListener('change', togglePredictButton);
+  marketSelect.addEventListener('change', togglePredictButton);
+
+  function showStep(step) {
+    [step1, step2, step3].forEach(s => s.classList.remove('active'));
+    step.classList.add('active');
+  }
+
+  predictBtn.addEventListener('click', () => {
+    message1.textContent = '';
+    predictionText.textContent = 'Predicting... Please wait.';
+    showStep(step2);
+
+    currentCrop = cropSelect.value;
+    currentMarket = marketSelect.value;
+
+    fetch('/api/predict', {
+      method:'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ crop: currentCrop, market: currentMarket })
+    }).then(r => r.json()).then(data => {
+      if (data.error) {
+        predictionText.textContent = 'Error: ' + data.error;
+      } else {
+        currentPrediction = data;
+        predictionText.textContent = `Price: ₹${data.prediction} (approx. for ${data.pred_date})`;
+      }
+    }).catch(() => {
+      predictionText.textContent = 'Prediction request failed. Try again.';
+    });
+  });
+
+  showAnalyticsBtn.addEventListener('click', () => {
+    message2.textContent = '';
+    analyticsList.innerHTML = '';
+    chartImg.src = '';
+    chartImg.alt = "Loading chart...";
+    showStep(step3);
+
+    fetch('/api/analytics', {
+      method:'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ crop: currentCrop, market: currentMarket })
+    }).then(r => r.json()).then(data => {
+      if (data.error) {
+        message3.textContent = 'Error: ' + data.error;
+      } else {
+        message3.textContent = '';
+        const stats = data.stats;
+        analyticsList.innerHTML = '';
+        for (const k in stats) {
+          const li = document.createElement('li');
+          li.textContent = `${k}: ${stats[k]}`;
+          analyticsList.appendChild(li);
+        }
+        chartImg.src = data.chart_img;
+        chartImg.alt = `Price trend for ${currentCrop} in ${currentMarket}`;
+      }
+    }).catch(() => {
+      message3.textContent = 'Analytics request failed. Try again.';
+    });
+  });
+
+  backToStep1Btn.addEventListener('click', () => {
+    showStep(step1);
+    predictionText.textContent = '';
+    message2.textContent = '';
+  });
+  backToStep1Btn2.addEventListener('click', () => {
+    showStep(step1);
+    message3.textContent = '';
+    analyticsList.innerHTML = '';
+    chartImg.src = '';
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!currentPrediction) {
+      alert("No prediction data to download.");
+      return;
+    }
+    const content = `Agri Price Prediction Result\nCrop: ${currentCrop}\nMarket: ${currentMarket}\nPrice: ₹${currentPrediction.prediction} (Approx. for ${currentPrediction.pred_date})`;
+    const blob = new Blob([content], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Agri_Price_Prediction_${currentCrop}_${currentMarket}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  shareBtn.addEventListener('click', () => {
+    if (!currentPrediction) {
+      alert("No prediction data to share.");
+      return;
+    }
+    const shareURL = `${window.location.origin}/?crop=${encodeURIComponent(currentCrop)}&market=${encodeURIComponent(currentMarket)}`;
+    navigator.clipboard.writeText(shareURL).then(() => {
+      alert("Sharing link copied to clipboard:\n" + shareURL);
+    }).catch(() => {
+      alert("Clipboard copy failed. Here is the link:\n" + shareURL);
+    });
+  });
+</script>
 </body>
 </html>
