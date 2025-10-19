@@ -73,8 +73,7 @@ def build_input_row(subset, model):
             val = subset['Modal_Price'].mean()
         input_dict[feat] = val
     return pd.DataFrame([input_dict], columns=feature_order)
-
-
+    
 @app.route("/")
 def index():
     return render_template("index.html", crops=crops, markets=markets)
