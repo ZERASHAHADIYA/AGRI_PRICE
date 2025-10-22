@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Agri Price Prediction</title>
 <style>
-  /* ===== Background ===== */
   body {
     margin: 0;
     padding: 0;
@@ -17,9 +16,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
   }
-
-  /* Add overlay for readability */
   body::before {
     content: "";
     position: absolute;
@@ -28,8 +26,6 @@
     backdrop-filter: blur(3px);
     z-index: 0;
   }
-
-  /* ===== Glassy Container ===== */
   .container {
     position: relative;
     z-index: 1;
@@ -43,14 +39,12 @@
     color: #f8fff6;
     animation: fadeIn 0.8s ease-in-out;
   }
-
   h2 {
     color: #ffffff;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     text-align: center;
     margin-bottom: 25px;
   }
-
   select, button {
     width: 100%;
     padding: 12px 14px;
@@ -63,210 +57,186 @@
     background: rgba(255, 255, 255, 0.35);
     color: #0f2e1b;
   }
-
   select:focus, button:focus {
     outline: none;
     border-color: #a4e3b2;
     box-shadow: 0 0 8px rgba(163, 228, 176, 0.8);
   }
-
   button {
     background: linear-gradient(135deg, #2e7d32, #66bb6a);
     color: white;
     border: none;
     font-weight: 700;
   }
-
   button:hover:enabled {
     background: linear-gradient(135deg, #43a047, #81c784);
   }
-
   button:disabled {
     background: rgba(255,255,255,0.3);
     color: #ccc;
     cursor: not-allowed;
   }
-
-  .step {
-    display: none;
-  }
-  .step.active {
-    display: block;
-  }
-
+  .step { display: none; }
+  .step.active { display: block; }
   @keyframes fadeIn {
     from {opacity: 0; transform: translateY(40px);}
     to {opacity: 1; transform: translateY(0);}
   }
-
-  .result-text {
-    font-size: 1.3rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #eaffea;
-  }
-
-  ul.stats {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 24px 0;
-  }
-  ul.stats li {
-    background: rgba(255,255,255,0.25);
-    margin-bottom: 10px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-weight: 600;
-    color: #103e21;
-  }
-
-  img.chart {
-    width: 100%;
-    border-radius: 12px;
-    margin-top: 10px;
-  }
-
-  .btn-row {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .back-btn {
-    margin-top: 20px;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.25);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.4);
-  }
-  .back-btn:hover {
-    background: rgba(255, 255, 255, 0.35);
-  }
-
-  .message {
-    text-align:center;
-    font-weight:600;
-    color: #ffebee;
-    margin-top: 16px;
-  }
+  .result-text { font-size: 1.3rem; font-weight: 600; text-align: center; margin-bottom: 20px; color: #eaffea; }
+  ul.stats { list-style: none; padding: 0; margin: 0 0 24px 0; }
+  ul.stats li { background: rgba(255,255,255,0.25); margin-bottom: 10px; padding: 10px 14px; border-radius: 10px; font-weight: 600; color: #103e21; }
+  img.chart { width: 100%; border-radius: 12px; margin-top: 10px; }
+  .btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .back-btn { margin-top: 20px; width: 100%; background: rgba(255, 255, 255, 0.25); color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.35); }
+  .message { text-align:center; font-weight:600; color: #ffebee; margin-top: 16px; }
 </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Step 1: Selection -->
-    <div id="step1" class="step active">
-      <h2>🌾 Select Crop & Market</h2>
-      <select id="cropSelect" required>
-        <option value="" disabled selected>Select Crop</option>
-        {% for c in crops %}
-        <option value="{{ c }}">{{ c }}</option>
-        {% endfor %}
-      </select>
-      <select id="marketSelect" required>
-        <option value="" disabled selected>Select Market</option>
-        {% for m in markets %}
-        <option value="{{ m }}">{{ m }}</option>
-        {% endfor %}
-      </select>
-      <button id="predictBtn" disabled>Predict Price</button>
-      <p class="message" id="message1"></p>
-    </div>
-
-    <!-- Step 2: Prediction Result -->
-    <div id="step2" class="step">
-      <h2>📈 Predicted Price</h2>
-      <p class="result-text" id="predictionText">Loading...</p>
-      <div class="btn-row">
-        <button id="showAnalyticsBtn">Show Analytics</button>
-        <button id="downloadBtn">Download</button>
-      </div>
-      <button class="back-btn" id="back1">← Back</button>
-    </div>
-
-    <!-- Step 3: Analytics -->
-    <div id="step3" class="step">
-      <h2>📊 Market Analytics & Trend</h2>
-      <ul class="stats" id="analyticsList"></ul>
-      <img class="chart" id="chartImg" alt="Price Trend" />
-      <button class="back-btn" id="back2">← Back</button>
-    </div>
+<div class="container">
+  <!-- Step 1 -->
+  <div id="step1" class="step active">
+    <h2>🌾 Select Crop & Market</h2>
+    <select id="cropSelect" required>
+      <option value="" disabled selected>Select Crop</option>
+      {% for c in crops %}
+      <option value="{{ c }}">{{ c }}</option>
+      {% endfor %}
+    </select>
+    <select id="marketSelect" required>
+      <option value="" disabled selected>Select Market</option>
+      {% for m in markets %}
+      <option value="{{ m }}">{{ m }}</option>
+      {% endfor %}
+    </select>
+    <button id="predictBtn" disabled>Predict Price</button>
+    <p class="message" id="message1"></p>
   </div>
 
+  <!-- Step 2 -->
+  <div id="step2" class="step">
+    <h2>📈 Predicted Price</h2>
+    <p class="result-text" id="predictionText">Loading...</p>
+    <div class="btn-row">
+      <button id="showAnalyticsBtn">Show Analytics</button>
+      <button id="downloadBtn">Download</button>
+    </div>
+    <button class="back-btn" id="back1">← Back</button>
+  </div>
+
+  <!-- Step 3 -->
+  <div id="step3" class="step">
+    <h2>📊 Market Analytics & Trend</h2>
+    <ul class="stats" id="analyticsList"></ul>
+    <img class="chart" id="chartImg" alt="Price Trend" />
+    <button class="back-btn" id="back2">← Back</button>
+  </div>
+</div>
+
 <script>
-  const cropSelect = document.getElementById("cropSelect");
-  const marketSelect = document.getElementById("marketSelect");
-  const predictBtn = document.getElementById("predictBtn");
-  const showAnalyticsBtn = document.getElementById("showAnalyticsBtn");
-  const downloadBtn = document.getElementById("downloadBtn");
-  const back1 = document.getElementById("back1");
-  const back2 = document.getElementById("back2");
+const cropSelect = document.getElementById("cropSelect");
+const marketSelect = document.getElementById("marketSelect");
+const predictBtn = document.getElementById("predictBtn");
+const showAnalyticsBtn = document.getElementById("showAnalyticsBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const back1 = document.getElementById("back1");
+const back2 = document.getElementById("back2");
+const step1 = document.getElementById("step1");
+const step2 = document.getElementById("step2");
+const step3 = document.getElementById("step3");
+const predictionText = document.getElementById("predictionText");
+const analyticsList = document.getElementById("analyticsList");
+const chartImg = document.getElementById("chartImg");
 
-  const step1 = document.getElementById("step1");
-  const step2 = document.getElementById("step2");
-  const step3 = document.getElementById("step3");
+function showStep(step) {
+  [step1, step2, step3].forEach(s => s.classList.remove('active'));
+  step.classList.add('active');
+}
 
-  const predictionText = document.getElementById("predictionText");
-  const analyticsList = document.getElementById("analyticsList");
-  const chartImg = document.getElementById("chartImg");
+cropSelect.addEventListener("change", () => { predictBtn.disabled = !(cropSelect.value && marketSelect.value); });
+marketSelect.addEventListener("change", () => { predictBtn.disabled = !(cropSelect.value && marketSelect.value); });
 
-  function showStep(step) {
-    [step1, step2, step3].forEach(s => s.classList.remove('active'));
-    step.classList.add('active');
+predictBtn.addEventListener("click", () => {
+  showStep(step2);
+  predictionText.textContent = "Predicting...";
+  console.log("Predict request:", cropSelect.value, marketSelect.value);
+
+  fetch('/api/predict', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({crop: cropSelect.value, market: marketSelect.value})
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    console.log("Predict response:", data);
+    if(data.error) predictionText.textContent="Error: "+data.error;
+    else predictionText.textContent=`Predicted Price: ₹${data.prediction} (for ${data.pred_date})`;
+  })
+  .catch(err=>{
+    console.error(err);
+    predictionText.textContent="Prediction failed!";
+  });
+});
+
+showAnalyticsBtn.addEventListener("click", () => {
+  showStep(step3);
+  analyticsList.innerHTML="<li>Loading analytics...</li>";
+  chartImg.src="";
+  fetch('/api/analytics', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({crop: cropSelect.value, market: marketSelect.value})
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    console.log("Analytics response:", data);
+    analyticsList.innerHTML="";
+    if(data.error){ analyticsList.innerHTML=`<li>${data.error}</li>`; chartImg.src=""; return; }
+    for(const key in data.stats){
+      const li = document.createElement('li'); li.textContent=`${key}: ${data.stats[key]}`;
+      analyticsList.appendChild(li);
+    }
+    chartImg.src = data.chart_img || "";
+  })
+  .catch(err=>{
+    console.error(err);
+    analyticsList.innerHTML="<li>Failed to load analytics.</li>";
+    chartImg.src="";
+  });
+});
+
+downloadBtn.addEventListener("click", async () => {
+  if(!predictionText.textContent.includes("₹")) {
+    alert("No prediction available to download!");
+    return;
   }
-
-  cropSelect.addEventListener("change", () => {
-    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
+  const stats = {};
+  document.querySelectorAll("#analyticsList li").forEach(li=>{
+    const [k,v] = li.textContent.split(":");
+    stats[k.trim()] = v.trim();
   });
-  marketSelect.addEventListener("change", () => {
-    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
+  const chart_img = chartImg.src || "";
+  const payload = {
+    crop: cropSelect.value,
+    market: marketSelect.value,
+    prediction: predictionText.textContent.replace("Predicted Price: ₹","").split(" ")[0],
+    stats: stats,
+    chart_img: chart_img
+  };
+
+  const response = await fetch("/api/download", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
   });
+  const blob = await response.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "price_report.pdf";
+  a.click();
+});
 
-  predictBtn.addEventListener("click", () => {
-    showStep(step2);
-    predictionText.textContent = "Predicting...";
 
-    fetch('/api/predict', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ crop: cropSelect.value, market: marketSelect.value })
-    }).then(r => r.json()).then(data => {
-      if (data.error) predictionText.textContent = 'Error: ' + data.error;
-      else predictionText.textContent = `Predicted Price: ₹${data.prediction} (for ${data.pred_date})`;
-    });
-  });
-
-  showAnalyticsBtn.addEventListener("click", () => {
-    showStep(step3);
-    analyticsList.innerHTML = "<li>Loading analytics...</li>";
-
-    fetch('/api/analytics', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ crop: cropSelect.value, market: marketSelect.value })
-    }).then(r => r.json()).then(data => {
-      analyticsList.innerHTML = '';
-      for (const key in data.stats) {
-        const li = document.createElement('li');
-        li.textContent = `${key}: ${data.stats[key]}`;
-        analyticsList.appendChild(li);
-      }
-      chartImg.src = data.chart_img;
-    });
-  });
-
-  downloadBtn.addEventListener("click", () => {
-    const content = `Crop: ${cropSelect.value}\nMarket: ${marketSelect.value}\nPrediction: ${predictionText.textContent}`;
-    const blob = new Blob([content], {type: 'text/plain'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'price_prediction.txt';
-    a.click();
-  });
-
-  back1.addEventListener("click", () => showStep(step1));
-  back2.addEventListener("click", () => showStep(step2));
+back1.addEventListener("click", ()=>showStep(step1));
+back2.addEventListener("click", ()=>showStep(step2));
 </script>
 </body>
 </html>
