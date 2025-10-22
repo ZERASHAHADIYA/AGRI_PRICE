@@ -3,123 +3,153 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Agri Price Prediction - Interactive</title>
+<title>Agri Price Prediction</title>
 <style>
+  /* ===== Background ===== */
   body {
-    background-image: url("{{ url_for('static', filename='images/images.jpeg') }}");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    position: relative;
-    font-family: 'Inter', Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     color: #1d3b28;
+    background: url("{{ url_for('static', filename='agri.jpg') }}") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  /* Add overlay for readability */
   body::before {
     content: "";
-    position: fixed;
+    position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255, 255, 255, 0.7);
-    pointer-events: none;
-    z-index: -1;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: 0;
   }
+
+  /* ===== Glassy Container ===== */
   .container {
-    background: rgba(255,255,255,0.85);
-    border-radius: 14px;
-    padding: 30px 40px;
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(15px);
+    border-radius: 18px;
+    padding: 40px 50px;
+    width: 90%;
     max-width: 600px;
-    margin: 2rem auto;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    color: #f8fff6;
+    animation: fadeIn 0.8s ease-in-out;
   }
+
   h2 {
-    color: #2c6e49;
-    margin-bottom: 24px;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     text-align: center;
+    margin-bottom: 25px;
   }
+
   select, button {
     width: 100%;
     padding: 12px 14px;
-    margin-bottom: 24px;
-    border-radius: 10px;
-    border: 1.8px solid #a3cc9c;
-    font-size: 1.1rem;
-    font-weight: 600;
+    margin-bottom: 22px;
+    border-radius: 12px;
+    border: 1.8px solid rgba(255,255,255,0.6);
+    font-size: 1rem;
     cursor: pointer;
-    transition: border-color 0.3s ease;
+    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.35);
+    color: #0f2e1b;
   }
+
   select:focus, button:focus {
     outline: none;
-    border-color: #4fa76d;
-    box-shadow: 0 0 8px #9cdbb1;
+    border-color: #a4e3b2;
+    box-shadow: 0 0 8px rgba(163, 228, 176, 0.8);
   }
+
   button {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
     color: white;
-    background: #2c6e49;
     border: none;
     font-weight: 700;
   }
+
   button:hover:enabled {
-    background: #3ba463;
+    background: linear-gradient(135deg, #43a047, #81c784);
   }
+
   button:disabled {
-    background: #a3cc9c;
+    background: rgba(255,255,255,0.3);
+    color: #ccc;
     cursor: not-allowed;
   }
+
   .step {
     display: none;
-    animation: fadeIn 0.5s ease forwards;
   }
   .step.active {
     display: block;
   }
+
   @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(30px);}
+    from {opacity: 0; transform: translateY(40px);}
     to {opacity: 1; transform: translateY(0);}
   }
+
   .result-text {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 1.3rem;
+    font-weight: 600;
     text-align: center;
-    color: #2a5934;
+    margin-bottom: 20px;
+    color: #eaffea;
   }
+
   ul.stats {
     list-style: none;
     padding: 0;
     margin: 0 0 24px 0;
   }
   ul.stats li {
-    background: #d6ecd1;
+    background: rgba(255,255,255,0.25);
     margin-bottom: 10px;
     padding: 10px 14px;
     border-radius: 10px;
     font-weight: 600;
-    color: #276631;
-    box-shadow: inset 0 0 4px #b9d9a6;
+    color: #103e21;
   }
+
   img.chart {
     width: 100%;
-    border-radius: 14px;
-    box-shadow: 0 4px 15px rgba(44,110,73,0.15);
-    margin-bottom: 24px;
+    border-radius: 12px;
+    margin-top: 10px;
   }
+
   .btn-row {
     display: flex;
-    gap: 16px;
+    gap: 14px;
     justify-content: center;
     flex-wrap: wrap;
   }
-  .btn-row button {
-    flex: 1 1 140px;
+
+  .back-btn {
+    margin-top: 20px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
   }
+  .back-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
   .message {
     text-align:center;
     font-weight:600;
-    color: #a03a2d;
-    margin-bottom: 24px;
+    color: #ffebee;
+    margin-top: 16px;
   }
 </style>
 </head>
@@ -127,7 +157,7 @@
   <div class="container">
     <!-- Step 1: Selection -->
     <div id="step1" class="step active">
-      <h2>Select Crop & Market</h2>
+      <h2>🌾 Select Crop & Market</h2>
       <select id="cropSelect" required>
         <option value="" disabled selected>Select Crop</option>
         {% for c in crops %}
@@ -146,24 +176,21 @@
 
     <!-- Step 2: Prediction Result -->
     <div id="step2" class="step">
-      <h2>Prediction Result</h2>
-      <p class="result-text" id="predictionText"></p>
+      <h2>📈 Predicted Price</h2>
+      <p class="result-text" id="predictionText">Loading...</p>
       <div class="btn-row">
         <button id="showAnalyticsBtn">Show Analytics</button>
-        <button id="downloadBtn">Download Result</button>
-        <button id="shareBtn">Share</button>
+        <button id="downloadBtn">Download</button>
       </div>
-      <button id="backToStep1Btn" style="margin-top:20px;">Start Over</button>
-      <p class="message" id="message2"></p>
+      <button class="back-btn" id="back1">← Back</button>
     </div>
 
     <!-- Step 3: Analytics -->
     <div id="step3" class="step">
-      <h2>Market Analytics & Price Trend</h2>
+      <h2>📊 Market Analytics & Trend</h2>
       <ul class="stats" id="analyticsList"></ul>
-      <img class="chart" id="chartImg" alt="Price Trend Chart" />
-      <button id="backToStep1Btn2">Start Over</button>
-      <p class="message" id="message3"></p>
+      <img class="chart" id="chartImg" alt="Price Trend" />
+      <button class="back-btn" id="back2">← Back</button>
     </div>
   </div>
 
@@ -173,9 +200,8 @@
   const predictBtn = document.getElementById("predictBtn");
   const showAnalyticsBtn = document.getElementById("showAnalyticsBtn");
   const downloadBtn = document.getElementById("downloadBtn");
-  const shareBtn = document.getElementById("shareBtn");
-  const backToStep1Btn = document.getElementById("backToStep1Btn");
-  const backToStep1Btn2 = document.getElementById("backToStep1Btn2");
+  const back1 = document.getElementById("back1");
+  const back2 = document.getElementById("back2");
 
   const step1 = document.getElementById("step1");
   const step2 = document.getElementById("step2");
@@ -185,121 +211,62 @@
   const analyticsList = document.getElementById("analyticsList");
   const chartImg = document.getElementById("chartImg");
 
-  const message1 = document.getElementById("message1");
-  const message2 = document.getElementById("message2");
-  const message3 = document.getElementById("message3");
-
-  let currentPrediction = null;
-  let currentCrop = '';
-  let currentMarket = '';
-
-  // Enable predict button only if both selected
-  function togglePredictButton() {
-    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
-  }
-  cropSelect.addEventListener('change', togglePredictButton);
-  marketSelect.addEventListener('change', togglePredictButton);
-
   function showStep(step) {
     [step1, step2, step3].forEach(s => s.classList.remove('active'));
     step.classList.add('active');
   }
 
-  predictBtn.addEventListener('click', () => {
-    message1.textContent = '';
-    predictionText.textContent = 'Predicting... Please wait.';
-    showStep(step2);
+  cropSelect.addEventListener("change", () => {
+    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
+  });
+  marketSelect.addEventListener("change", () => {
+    predictBtn.disabled = !(cropSelect.value && marketSelect.value);
+  });
 
-    currentCrop = cropSelect.value;
-    currentMarket = marketSelect.value;
+  predictBtn.addEventListener("click", () => {
+    showStep(step2);
+    predictionText.textContent = "Predicting...";
 
     fetch('/api/predict', {
-      method:'POST',
+      method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ crop: currentCrop, market: currentMarket })
+      body: JSON.stringify({ crop: cropSelect.value, market: marketSelect.value })
     }).then(r => r.json()).then(data => {
-      if (data.error) {
-        predictionText.textContent = 'Error: ' + data.error;
-      } else {
-        currentPrediction = data;
-        predictionText.textContent = `Price: ₹${data.prediction} (approx. for ${data.pred_date})`;
-      }
-    }).catch(() => {
-      predictionText.textContent = 'Prediction request failed. Try again.';
+      if (data.error) predictionText.textContent = 'Error: ' + data.error;
+      else predictionText.textContent = `Predicted Price: ₹${data.prediction} (for ${data.pred_date})`;
     });
   });
 
-  showAnalyticsBtn.addEventListener('click', () => {
-    message2.textContent = '';
-    analyticsList.innerHTML = '';
-    chartImg.src = '';
-    chartImg.alt = "Loading chart...";
+  showAnalyticsBtn.addEventListener("click", () => {
     showStep(step3);
+    analyticsList.innerHTML = "<li>Loading analytics...</li>";
 
     fetch('/api/analytics', {
-      method:'POST',
+      method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ crop: currentCrop, market: currentMarket })
+      body: JSON.stringify({ crop: cropSelect.value, market: marketSelect.value })
     }).then(r => r.json()).then(data => {
-      if (data.error) {
-        message3.textContent = 'Error: ' + data.error;
-      } else {
-        message3.textContent = '';
-        const stats = data.stats;
-        analyticsList.innerHTML = '';
-        for (const k in stats) {
-          const li = document.createElement('li');
-          li.textContent = `${k}: ${stats[k]}`;
-          analyticsList.appendChild(li);
-        }
-        chartImg.src = data.chart_img;
-        chartImg.alt = `Price trend for ${currentCrop} in ${currentMarket}`;
+      analyticsList.innerHTML = '';
+      for (const key in data.stats) {
+        const li = document.createElement('li');
+        li.textContent = `${key}: ${data.stats[key]}`;
+        analyticsList.appendChild(li);
       }
-    }).catch(() => {
-      message3.textContent = 'Analytics request failed. Try again.';
+      chartImg.src = data.chart_img;
     });
   });
 
-  backToStep1Btn.addEventListener('click', () => {
-    showStep(step1);
-    predictionText.textContent = '';
-    message2.textContent = '';
-  });
-  backToStep1Btn2.addEventListener('click', () => {
-    showStep(step1);
-    message3.textContent = '';
-    analyticsList.innerHTML = '';
-    chartImg.src = '';
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    if (!currentPrediction) {
-      alert("No prediction data to download.");
-      return;
-    }
-    const content = `Agri Price Prediction Result\nCrop: ${currentCrop}\nMarket: ${currentMarket}\nPrice: ₹${currentPrediction.prediction} (Approx. for ${currentPrediction.pred_date})`;
+  downloadBtn.addEventListener("click", () => {
+    const content = `Crop: ${cropSelect.value}\nMarket: ${marketSelect.value}\nPrediction: ${predictionText.textContent}`;
     const blob = new Blob([content], {type: 'text/plain'});
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `Agri_Price_Prediction_${currentCrop}_${currentMarket}.txt`;
-    document.body.appendChild(a);
+    a.href = URL.createObjectURL(blob);
+    a.download = 'price_prediction.txt';
     a.click();
-    document.body.removeChild(a);
   });
 
-  shareBtn.addEventListener('click', () => {
-    if (!currentPrediction) {
-      alert("No prediction data to share.");
-      return;
-    }
-    const shareURL = `${window.location.origin}/?crop=${encodeURIComponent(currentCrop)}&market=${encodeURIComponent(currentMarket)}`;
-    navigator.clipboard.writeText(shareURL).then(() => {
-      alert("Sharing link copied to clipboard:\n" + shareURL);
-    }).catch(() => {
-      alert("Clipboard copy failed. Here is the link:\n" + shareURL);
-    });
-  });
+  back1.addEventListener("click", () => showStep(step1));
+  back2.addEventListener("click", () => showStep(step2));
 </script>
 </body>
 </html>
